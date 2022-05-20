@@ -4,4 +4,4 @@ CS420 Project
 
 ## Data
 
-Unzip the data into `data/` folder.
+Unzip the data into `dataset/` folder.
