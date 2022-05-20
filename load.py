@@ -28,7 +28,7 @@ categories = [
     "zebra",
 ]
 
-bear = np.load("data/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
+bear = np.load("dataset/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
 
 ## show the structure of bear
 # bear.files
