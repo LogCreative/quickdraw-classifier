@@ -58,7 +58,9 @@ class MyDataset(Dataset):
         return len(self.data)
 
 def GetDataset(dataroot:str,transform=None):
-    filenames = next(os.walk(dataroot), (None, None, []))[2] 
+    filenames = next(os.walk(dataroot), (None, None, []))[2]
+    if filenames[0] == '.gitkeep':
+        filenames.remove('.gitkeep')
     filename = filenames[0]
     category = filename[:-8]
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
@@ -84,7 +86,7 @@ def GetDataset(dataroot:str,transform=None):
 
 
 transform = transforms.Compose([transforms.Resize(256), transforms.ToTensor()])
-trainset,valset = GetDataset(dataroot='dataset',transform=transform)
+trainset,valset = GetDataset(dataroot='dataset/png',transform=transform)
 train_loader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=4)
 val_loader = DataLoader(valset, batch_size=4, num_workers=4)
 
@@ -92,7 +94,7 @@ val_loader = DataLoader(valset, batch_size=4, num_workers=4)
 
 ## Some sample code for loading the dataset
 
-# bear = np.load("dataset/bear_png.npz", allow_pickle=True, encoding="latin1")
+# bear = np.load("dataset/png/bear_png.npz", allow_pickle=True, encoding="latin1")
 
 # ## show the structure of bear
 # # bear.files
@@ -107,7 +109,7 @@ val_loader = DataLoader(valset, batch_size=4, num_workers=4)
 
 # ## For the seq data
 
-# bear_seq = np.load("dataset/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
+# bear_seq = np.load("dataset/seq/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
 
 # bear_seq_train = bear_seq["train"]
 # bear_seq_test = bear_seq["test"]
