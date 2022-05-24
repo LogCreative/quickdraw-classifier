@@ -89,14 +89,28 @@ train_loader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=4)
 val_loader = DataLoader(valset, batch_size=4, num_workers=4)
 
 
-bear = np.load("dataset/bear_png.npz", allow_pickle=True, encoding="latin1")
 
-## show the structure of bear
-# bear.files
+## Some sample code for loading the dataset
 
-bear_train = bear["train"]
-bear_test = bear["test"]
-bear_valid = bear["valid"]
+# bear = np.load("dataset/bear_png.npz", allow_pickle=True, encoding="latin1")
 
-# %%
-print(bear_train[1].shape)
+# ## show the structure of bear
+# # bear.files
+
+# bear_train = bear["train"]
+# bear_test = bear["test"]
+# bear_valid = bear["valid"]
+
+# import matplotlib.pyplot as plt
+# plt.imshow(bear_train[0], cmap="gray")
+# plt.show()
+
+# ## For the seq data
+
+# bear_seq = np.load("dataset/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
+
+# bear_seq_train = bear_seq["train"]
+# bear_seq_test = bear_seq["test"]
+# bear_seq_valid = bear_seq["valid"]
+
+# print(bear_seq_train[0].shape)
