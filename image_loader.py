@@ -57,7 +57,7 @@ class MyDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-def GetDataset(dataroot:str,transform=None):
+def GetDataset(dataroot:str,transform=None,small=False):
     filenames = next(os.walk(dataroot), (None, None, []))[2]
     if filenames[0] == '.gitkeep':
         filenames.remove('.gitkeep')
@@ -65,10 +65,14 @@ def GetDataset(dataroot:str,transform=None):
     category = filename[:-8]
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
     train_data_array = npz_file['train']
-    val_data_array = npz_file['train']
+    val_data_array = npz_file['valid']
     train_label_array = np.full((len(train_data_array),),categories_label_dict[category])
     val_label_array = np.full((len(val_data_array),),categories_label_dict[category])
-    for filename in filenames[1:2]:
+    
+    if small:
+        filenames = filenames[:2] #!used for debug and something
+        
+    for filename in filenames[1:]:
         category = filename[:-8]
         npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
         train_data_array = np.concatenate((train_data_array, npz_file['train']), axis=0)
@@ -84,35 +88,9 @@ def GetDataset(dataroot:str,transform=None):
     return trainset,valset
         
 
-
-transform = transforms.Compose([transforms.Resize(256), transforms.ToTensor()])
-trainset,valset = GetDataset(dataroot='dataset/png',transform=transform)
-train_loader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=4)
-val_loader = DataLoader(valset, batch_size=4, num_workers=4)
-
-
-
-## Some sample code for loading the dataset
-
-# bear = np.load("dataset/png/bear_png.npz", allow_pickle=True, encoding="latin1")
-
-# ## show the structure of bear
-# # bear.files
-
-# bear_train = bear["train"]
-# bear_test = bear["test"]
-# bear_valid = bear["valid"]
-
-# import matplotlib.pyplot as plt
-# plt.imshow(bear_train[0], cmap="gray")
-# plt.show()
-
-# ## For the seq data
-
-# bear_seq = np.load("dataset/seq/sketchrnn_bear.npz", allow_pickle=True, encoding="latin1")
-
-# bear_seq_train = bear_seq["train"]
-# bear_seq_test = bear_seq["test"]
-# bear_seq_valid = bear_seq["valid"]
-
-# print(bear_seq_train[0].shape)
+if __name__ == '__main__':
+    transform = transforms.Compose([transforms.Resize(256), transforms.ToTensor()])
+    trainset,valset = GetDataset(dataroot='dataset/png',transform=transform)
+    train_loader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=4)
+    val_loader = DataLoader(valset, batch_size=4, num_workers=4)
+    
