@@ -1,6 +1,10 @@
 import torch
 import torch.nn.functional as F
 
+"""
+Sketch-a-net is the evaluation method for RPCL-pix2seq.
+Yu et al. Sketch-a-Net that Beats Humans. 2015.
+"""
 class Net(torch.nn.Module):
     def __init__(self,opt=None):
         super().__init__()
