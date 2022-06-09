@@ -10,9 +10,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 def main( args ):
     transform=Compose([Resize([225, 225]), Grayscale(), ToTensor()])
-    trainset,valset = GetDataset(args.dataroot,transform,args.small_data)
+    trainset,valset,testset = GetDataset(args.dataroot,transform,args.small_data)
     train_loader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(valset, batch_size=args.val_batch_size, num_workers=4)
+    test_loader = DataLoader(testset, batch_size=args.val_batch_size, num_workers=4)
     
     if args.model == 'sketchnet':
         from models.sketchnet import create_model
@@ -61,7 +62,7 @@ def main( args ):
         print(f'Epoch {e + 1}/{args.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
-        correct, total = 0, 0
+        correct = 0
         model.eval()
         with torch.no_grad():
             for i, (X, Y) in enumerate(val_loader):
@@ -75,8 +76,17 @@ def main( args ):
             torch.save(model.state_dict(), f'best_{args.model}.pth')
         print(f'[validation] -/{e+1}/{args.epochs} -> Accuracy: {accuracy} %')
 
-
-
+    correct = 0
+    model.load_state_dict(torch.load(f'best_{args.model}.pth')) # the best
+    model.eval()
+    with torch.no_grad():
+        for i, (X,Y) in enumerate(test_loader):
+            X, Y = X.to(device), Y.to(device)
+            output = model(X)
+            _, predicted = torch.max(output, 1)                
+            correct += (predicted == Y).sum().item()
+    accuracy = (float(correct) / len(val_loader.dataset)) * 100
+    print(f'[test] - {args.model} -> Accuracy: {accuracy} %')
 
 if __name__ == '__main__':
     print(f"begin training and val with {args}") 

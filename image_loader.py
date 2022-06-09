@@ -65,8 +65,10 @@ def GetDataset(dataroot:str,transform=None,small=False):
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
     train_data_array = npz_file['train']
     val_data_array = npz_file['valid']
+    test_data_array = npz_file['test']
     train_label_array = np.full((len(train_data_array),),categories_label_dict[category])
     val_label_array = np.full((len(val_data_array),),categories_label_dict[category])
+    test_label_array = np.full((len(test_data_array),),categories_label_dict[category])
     
     if small:
         filenames = filenames[:2] #!used for debug and something
@@ -76,20 +78,24 @@ def GetDataset(dataroot:str,transform=None,small=False):
         npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
         train_data_array = np.concatenate((train_data_array, npz_file['train']), axis=0)
         val_data_array = np.concatenate((val_data_array, npz_file['valid']), axis=0)
+        test_data_array = np.concatenate((test_data_array, npz_file['test']), axis=0)
         train_label_array = np.concatenate((train_label_array, np.full((len(npz_file['train']),),categories_label_dict[category])), axis=0)
         val_label_array = np.concatenate((val_label_array, np.full((len(npz_file['valid']),),categories_label_dict[category])), axis=0)
+        test_label_array = np.concatenate((test_label_array, np.full((len(npz_file['test']),),categories_label_dict[category])), axis=0)
         gc.collect()
     train_data_array = train_data_array.astype(np.float32)
     val_data_array = val_data_array.astype(np.float32)
+    test_data_array = test_data_array.astype(np.float32)
     train_label_array = train_label_array
     val_label_array = val_label_array
-    trainset,valset = MyDataset(train_data_array, train_label_array,transform), MyDataset(val_data_array, val_label_array,transform)
-    return trainset,valset
+    test_label_array = test_label_array
+    trainset,valset,testset = MyDataset(train_data_array, train_label_array,transform), MyDataset(val_data_array, val_label_array,transform), MyDataset(test_data_array, test_label_array,transform)
+    return trainset,valset,testset
         
 
 if __name__ == '__main__':
     transform = transforms.Compose([transforms.Resize(256), transforms.ToTensor()])
-    trainset,valset = GetDataset(dataroot='dataset/png',transform=transform)
+    trainset,valset,testset = GetDataset(dataroot='dataset/png',transform=transform)
     train_loader = DataLoader(trainset, batch_size=4, shuffle=True, num_workers=4)
     val_loader = DataLoader(valset, batch_size=4, num_workers=4)
-    
+    test_loader = DataLoader(testset, batch_size=4, num_workers=4)
