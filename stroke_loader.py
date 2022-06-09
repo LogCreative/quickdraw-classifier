@@ -100,7 +100,7 @@ class SeqDataset(Dataset):
         new_seq[:len_seq,3] = seq[:,2]
         new_seq[(len_seq-1):,4] = 1
         new_seq[len_seq-1,2:4] = 0
-        return seq, y
+        return new_seq, y
     
     def __len__(self):
         return len(self.data)
