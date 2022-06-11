@@ -8,7 +8,6 @@ from torch import optim
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import Dataset, DataLoader
-from config_rnn import hp
 import os
 import gc
 use_cuda = torch.cuda.is_available()
@@ -22,7 +21,7 @@ def purify(strokes):
     """removes to small or too long sequences + removes large gaps"""
     data = []
     for seq in strokes:
-        if seq.shape[0] <= hp.max_seq_length and seq.shape[0] > 10:
+        if seq.shape[0] <= 1000 and seq.shape[0] > 10:
             seq = np.minimum(seq, 1000)
             seq = np.maximum(seq, -1000)
             seq = np.array(seq, dtype=np.float32)
@@ -109,8 +108,8 @@ class SeqDataset(Dataset):
 def get_category_name(filename:str):
     return filename.split('_')[1][:-4]
 def GetDataset(dataroot:str,transform=None,small=False):
-    filepaths = glob.glob(os.path.join(dataroot, "*.npz")) 
-    filenames = [path.split('/')[-1] for path in filepaths]
+    filenames = next(os.walk(dataroot), (None, None, []))[2]
+    filenames.remove('.gitkeep') # Windows and Linux has different behavior on os.path.join and glob
     filename = filenames[0]
     category = get_category_name(filename)
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
