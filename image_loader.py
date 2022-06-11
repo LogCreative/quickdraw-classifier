@@ -58,8 +58,8 @@ class MyDataset(Dataset):
         return len(self.data)
 
 def GetDataset(dataroot:str,transform=None,small=False):
-    filepaths = glob.glob(os.path.join(dataroot, "*.npz")) 
-    filenames = [path.split('/')[-1] for path in filepaths]
+    filenames = next(os.walk(dataroot), (None, None, []))[2]
+    filenames.remove('.gitkeep')
     filename = filenames[0]
     category = filename[:-8]
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")

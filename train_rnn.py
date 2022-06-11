@@ -12,7 +12,7 @@ import torch.nn as nn
 
 class HParams():
     def __init__(self):
-        self.dataroot = '/home/songxiufeng/tk/ml_proj/quickdraw-classifier/dataset/seq'
+        self.dataroot = 'dataset/seq/'
         self.enc_hidden_size = 256
         self.dec_hidden_size = 512
         self.num_class = 25
