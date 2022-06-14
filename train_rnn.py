@@ -97,8 +97,6 @@ def main(hp):
         epoch_loss = 0.0
         epoch_acc = 0
         for i, (X, Y) in enumerate(train_loader):
-            #RuntimeError: stack expects each tensor to be equal size, but got [69, 3] at entry 0 and [79, 3] at entry 1 error here
-            # X = X.transpose(0,1)#TODO:fix here
             X, Y = X.to(device), Y.to(device)
 
             optim.zero_grad()
@@ -127,7 +125,6 @@ def main(hp):
         model.eval()
         with torch.no_grad():
             for i, (X, Y) in enumerate(val_loader):
-                # X = X.transpose(0,1)
                 X, Y = X.to(device), Y.to(device)
                 output = model(X)
                 _, predicted = torch.max(output, 1)                

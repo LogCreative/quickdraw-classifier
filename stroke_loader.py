@@ -88,7 +88,7 @@ class SeqDataset(Dataset):
         self.data = data
         self.targets = torch.LongTensor(targets)
         
-        
+    # 补齐操作
     def __getitem__(self, index):
         seq = self.data[index]
         y = self.targets[index]
