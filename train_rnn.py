@@ -3,7 +3,7 @@ import torch, os
 from torchvision.transforms import ToTensor, Compose, Resize, Grayscale
 from torch.utils import tensorboard as tb
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, RandomSampler
 from stroke_loader import GetDataset
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
@@ -78,8 +78,10 @@ from models.sketchrnn import Net
     
 def main(hp):
     trainset,valset = GetDataset(hp.dataroot,None,hp.small_data)
-    train_loader = DataLoader(trainset, batch_size=hp.batch_size, shuffle=True, num_workers=4)
-    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)#TODO:with some problems
+    train_loader = DataLoader(trainset, batch_size=hp.batch_size, drop_last=True, num_workers=4)
+    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
+    #TODO:with some problems
+    # temporarily fixed by drop_last, but should use a customized randomized sampling.
     
     model = Net({'num_classes': 25, 'hidden_size': 70, 'device': hp.device, 'batch_size': hp.batch_size})
     device = torch.device(hp.device)
