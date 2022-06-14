@@ -78,10 +78,9 @@ from models.sketchrnn import Net
     
 def main(hp):
     trainset,valset = GetDataset(hp.dataroot,None,hp.small_data)
-    train_loader = DataLoader(trainset, batch_size=hp.batch_size, drop_last=True, num_workers=4)
-    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
-    #TODO:with some problems
-    # temporarily fixed by drop_last, but should use a customized randomized sampling.
+    train_loader = DataLoader(trainset, batch_size=hp.batch_size, sampler=RandomSampler(trainset, replacement=True, num_samples=((len(trainset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
+    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, sampler=RandomSampler(valset, replacement=True, num_samples=((len(valset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
+    # A RandomSampler with fixed batch size is used for fully using the whole dataset. If using drop_last, some data may missing.
     
     model = Net({'num_classes': 25, 'hidden_size': 70, 'device': hp.device, 'batch_size': hp.batch_size})
     device = torch.device(hp.device)
