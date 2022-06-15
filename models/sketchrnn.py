@@ -22,7 +22,7 @@ class Net(torch.nn.Module):
         bidirectional=True)
         self.linear = torch.nn.Linear(self.hidden_size*2, self.num_classes)
 
-    def forward(self, x, hidden):
+    def forward(self, x, hidden=None):
         if hidden is None:
             h0 = torch.autograd.Variable(torch.zeros(2, x.size(1), self.hidden_size)).to(self.device)
             c0 = torch.autograd.Variable(torch.zeros(2, x.size(1), self.hidden_size)).to(self.device)

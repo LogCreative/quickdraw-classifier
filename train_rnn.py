@@ -44,10 +44,9 @@ def main(hp):
     trainset,valset,testset = GetDataset(hp.dataroot,None,hp.small_data)
     train_loader = DataLoader(trainset, batch_size=hp.batch_size, sampler=RandomSampler(trainset, replacement=True, num_samples=((len(trainset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
     # A RandomSampler with fixed batch size is used for fully using the whole dataset. If using drop_last, some data may missing.
-    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
+    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)
     # But for validation, validate over the whole set is better. Use drop_last to avoid the mismatching.
-    # TODO: consider test_loader.
-    test_loader = DataLoader(testset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
+    test_loader = DataLoader(testset, batch_size=hp.val_batch_size, num_workers=4)
     
     model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device})
     device = torch.device(hp.device)
