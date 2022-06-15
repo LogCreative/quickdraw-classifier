@@ -108,15 +108,17 @@ class SeqDataset(Dataset):
 def get_category_name(filename:str):
     return filename.split('_')[1][:-4]
 def GetDataset(dataroot:str,transform=None,small=False):
-    filenames = next(os.walk(dataroot), (None, None, []))[2]
-    filenames.remove('.gitkeep') # Windows and Linux has different behavior on os.path.join and glob
+    filepaths = glob.glob(os.path.join(dataroot, "*.npz")) 
+    filenames = [path.split('/')[-1] for path in filepaths]
     filename = filenames[0]
     category = get_category_name(filename)
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
     train_data_array = npz_file['train']
     val_data_array = npz_file['valid']
+    test_data_array = npz_file['test']
     train_label_array = np.full((len(train_data_array),),categories_label_dict[category])
     val_label_array = np.full((len(val_data_array),),categories_label_dict[category])
+    test_label_array = np.full((len(test_data_array),),categories_label_dict[category])
     
     if small:
         filenames = filenames[:2] #!used for debug and something
@@ -128,15 +130,17 @@ def GetDataset(dataroot:str,transform=None,small=False):
         val_data_array = np.concatenate((val_data_array, npz_file['valid']), axis=0)
         train_label_array = np.concatenate((train_label_array, np.full((len(npz_file['train']),),categories_label_dict[category])), axis=0)
         val_label_array = np.concatenate((val_label_array, np.full((len(npz_file['valid']),),categories_label_dict[category])), axis=0)
+        test_label_array = np.concatenate((test_label_array, np.full((len(npz_file['test']),),categories_label_dict[category])), axis=0)
         gc.collect()
     train_label_array = train_label_array
     val_label_array = val_label_array
-    trainset,valset = SeqDataset(train_data_array, train_label_array,transform), SeqDataset(val_data_array, val_label_array,transform)
-    return trainset,valset
+    test_label_array = test_label_array
+    trainset,valset,testset = SeqDataset(train_data_array, train_label_array,transform), SeqDataset(val_data_array, val_label_array,transform), SeqDataset(test_data_array, test_label_array,transform)
+    return trainset,valset,test_data_array
 
 
 
 if __name__ == "__main__":
-    trainset,valset = GetDataset('/home/songxiufeng/tk/ml_proj/quickdraw-classifier/dataset/seq',small=True)
+    trainset,valset,testset = GetDataset('/home/songxiufeng/tk/ml_proj/quickdraw-classifier/dataset/seq',small=True)
     
     
