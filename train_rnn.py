@@ -47,6 +47,7 @@ def main(hp):
     val_loader = DataLoader(valset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
     # But for validation, validate over the whole set is better. Use drop_last to avoid the mismatching.
     # TODO: consider test_loader.
+    test_loader = DataLoader(testset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
     
     model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'batch_size': hp.batch_size})
     device = torch.device(hp.device)
@@ -96,13 +97,24 @@ def main(hp):
                 output = model(X)
                 _, predicted = torch.max(output, 1)                
                 correct += (predicted == Y).sum().item()
-        accuracy = (float(correct) / len(val_loader.dataset)) * 100
+                total += 1
+        accuracy = (float(correct) / total) * 100
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             torch.save(model.state_dict(), f'best_{hp.model}.pth')
         print(f'[validation] -/{e+1}/{hp.epochs} -> Accuracy: {accuracy} %')
 
-
+    correct, total = 0, 0
+    model.load_state_dict(torch.load(f'best_{hp.model}.pth')) # the best
+    model.eval()
+    with torch.no_grad():
+        for i, (X,Y) in enumerate(test_loader):
+            X, Y = X.to(device), Y.to(device)
+            output = model(X)
+            _, predicted = torch.max(output, 1)                
+            correct += (predicted == Y).sum().item()
+    accuracy = (float(correct) / total) * 100
+    print(f'[test] - {hp.model} -> Accuracy: {accuracy} %')
 
 
 if __name__ == '__main__':
