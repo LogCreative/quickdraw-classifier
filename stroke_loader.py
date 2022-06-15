@@ -108,8 +108,8 @@ class SeqDataset(Dataset):
 def get_category_name(filename:str):
     return filename.split('_')[1][:-4]
 def GetDataset(dataroot:str,transform=None,small=False):
-    filepaths = glob.glob(os.path.join(dataroot, "*.npz")) 
-    filenames = [path.split('/')[-1] for path in filepaths]
+    filenames = next(os.walk(dataroot), (None, None, []))[2]
+    filenames.remove('.gitkeep') # Windows and Linux has different behavior on os.path.join and glob
     filename = filenames[0]
     category = get_category_name(filename)
     npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
