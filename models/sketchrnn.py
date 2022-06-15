@@ -11,12 +11,10 @@ class Net(torch.nn.Module):
 
         self.num_classes = 25
         self.hidden_size = 10
-        self.batch_size = 100
         self.device = "cpu"
         if opt is not None:
             self.num_classes = opt['num_classes']
             self.hidden_size = opt['hidden_size']
-            self.batch_size = opt['batch_size']
             self.device = opt['device']
 
         self.lstm = torch.nn.LSTM(input_size=5, hidden_size=self.hidden_size,bias=True,
@@ -24,24 +22,21 @@ class Net(torch.nn.Module):
         bidirectional=True)
         self.linear = torch.nn.Linear(self.hidden_size*2, self.num_classes)
 
-    def forward(self, x):
-        x = self.get_batch(x, self.batch_size)
-        h0 = torch.autograd.Variable(torch.zeros(2, self.batch_size, self.hidden_size)).to(self.device)
-        c0 = torch.autograd.Variable(torch.zeros(2, self.batch_size, self.hidden_size)).to(self.device)
+    def forward(self, x, hidden):
+        if hidden is None:
+            h0 = torch.autograd.Variable(torch.zeros(2, x.size(1), self.hidden_size)).to(self.device)
+            c0 = torch.autograd.Variable(torch.zeros(2, x.size(1), self.hidden_size)).to(self.device)
+        else:
+            h0 = hidden[0]
+            c0 = hidden[1]
 
         out, _ = self.lstm(x.float(), (h0, c0))
+
+        out = out[-1]
 
         # decode the hidden state of the last time step
         out = self.linear(out[-1])
         return out
-
-    def get_batch(self, data, batch_size):
-        # Sampling
-        idxs = np.random.choice(len(data),batch_size)
-        batch_strokes = [data[idx] for idx in idxs]
-        batch = torch.autograd.Variable(torch.from_numpy(np.stack(batch_strokes, 1)).float())
-        # return batch, lengths
-        return batch
 
 
 def create_model(opt):

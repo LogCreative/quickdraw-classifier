@@ -12,7 +12,7 @@ import torch.nn as nn
 
 class HParams():
     def __init__(self):
-        self.dataroot = '/home/songxiufeng/tk/ml_proj/quickdraw-classifier/dataset/seq'
+        self.dataroot = 'dataset/seq'
         self.enc_hidden_size = 256
         self.dec_hidden_size = 512
         self.num_class = 25
@@ -29,8 +29,8 @@ class HParams():
         self.grad_clip = 1.
         self.temperature = 0.4
         self.max_seq_length = 200
-        self.device = 0
-        self.small_data = False
+        self.device = "cpu"
+        self.small_data = True
         self.val_batch_size = self.batch_size
         self.epochs = 10
         self.log_interval = 100
@@ -49,7 +49,7 @@ def main(hp):
     # TODO: consider test_loader.
     test_loader = DataLoader(testset, batch_size=hp.val_batch_size, drop_last=True, num_workers=4)
     
-    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'batch_size': hp.batch_size})
+    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device})
     device = torch.device(hp.device)
     
     crit = torch.nn.CrossEntropyLoss().to(device)
@@ -66,6 +66,7 @@ def main(hp):
         epoch_acc = 0
         for i, (X, Y) in enumerate(train_loader):
             X, Y = X.to(device), Y.to(device)
+            X = X.transpose(0,1) # X [seq_len, batch_size, 5]
 
             optim.zero_grad()
 
@@ -93,6 +94,7 @@ def main(hp):
         model.eval()
         with torch.no_grad():
             for i, (X, Y) in enumerate(val_loader):
+                X = X.transpose(0,1)
                 X, Y = X.to(device), Y.to(device)
                 output = model(X)
                 _, predicted = torch.max(output, 1)                
@@ -109,6 +111,7 @@ def main(hp):
     model.eval()
     with torch.no_grad():
         for i, (X,Y) in enumerate(test_loader):
+            X = X.transpose(0,1)
             X, Y = X.to(device), Y.to(device)
             output = model(X)
             _, predicted = torch.max(output, 1)                
