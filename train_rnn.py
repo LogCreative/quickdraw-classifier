@@ -113,6 +113,7 @@ def main(hp):
             output = model(X)
             _, predicted = torch.max(output, 1)                
             correct += (predicted == Y).sum().item()
+            total += 1
     accuracy = (float(correct) / total) * 100
     print(f'[test] - {hp.model} -> Accuracy: {accuracy} %')
 
