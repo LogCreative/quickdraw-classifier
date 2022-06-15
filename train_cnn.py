@@ -62,7 +62,7 @@ def main( args ):
         print(f'Epoch {e + 1}/{args.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
-        correct,total = 0,0
+        correct = 0
         model.eval()
         with torch.no_grad():
             for i, (X, Y) in enumerate(val_loader):
@@ -70,14 +70,13 @@ def main( args ):
                 output = model(X)
                 _, predicted = torch.max(output, 1)                
                 correct += (predicted == Y).sum().item()
-                total += 1
-        accuracy = (float(correct) / total) * 100
+        accuracy = (float(correct) / len(val_loader.dataset)) * 100
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             torch.save(model.state_dict(), f'best_{args.model}.pth')
         print(f'[validation] -/{e+1}/{args.epochs} -> Accuracy: {accuracy} %')
 
-    correct,total = 0,0
+    correct = 0
     model.load_state_dict(torch.load(f'best_{args.model}.pth')) # the best
     model.eval()
     with torch.no_grad():
@@ -86,8 +85,7 @@ def main( args ):
             output = model(X)
             _, predicted = torch.max(output, 1)                
             correct += (predicted == Y).sum().item()
-            total += 1
-    accuracy = (float(correct) / total) * 100
+    accuracy = (float(correct) / len(test_loader.dataset)) * 100
     print(f'[test] - {args.model} -> Accuracy: {accuracy} %')
 
 if __name__ == '__main__':

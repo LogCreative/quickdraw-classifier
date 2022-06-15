@@ -43,9 +43,8 @@ from models.sketchrnn import Net
 def main(hp):
     trainset,valset,testset = GetDataset(hp.dataroot,None,hp.small_data)
     train_loader = DataLoader(trainset, batch_size=hp.batch_size, sampler=RandomSampler(trainset, replacement=True, num_samples=((len(trainset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
-    # A RandomSampler with fixed batch size is used for fully using the whole dataset. If using drop_last, some data may missing.
+    # A RandomSampler with fixed batch size is used for fully using the whole dataset.
     val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)
-    # But for validation, validate over the whole set is better. Use drop_last to avoid the mismatching.
     test_loader = DataLoader(testset, batch_size=hp.val_batch_size, num_workers=4)
     
     model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device})
@@ -89,7 +88,7 @@ def main(hp):
         print(f'Epoch {e + 1}/{hp.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
-        correct, total = 0, 0
+        correct = 0
         model.eval()
         with torch.no_grad():
             for i, (X, Y) in enumerate(val_loader):
@@ -98,14 +97,13 @@ def main(hp):
                 output = model(X)
                 _, predicted = torch.max(output, 1)                
                 correct += (predicted == Y).sum().item()
-                total += 1
-        accuracy = (float(correct) / total) * 100
+        accuracy = (float(correct) / len(val_loader.dataset)) * 100
         if accuracy > best_accuracy:
             best_accuracy = accuracy
             torch.save(model.state_dict(), f'best_{hp.model}.pth')
         print(f'[validation] -/{e+1}/{hp.epochs} -> Accuracy: {accuracy} %')
 
-    correct, total = 0, 0
+    correct = 0
     model.load_state_dict(torch.load(f'best_{hp.model}.pth')) # the best
     model.eval()
     with torch.no_grad():
@@ -115,8 +113,7 @@ def main(hp):
             output = model(X)
             _, predicted = torch.max(output, 1)                
             correct += (predicted == Y).sum().item()
-            total += 1
-    accuracy = (float(correct) / total) * 100
+    accuracy = (float(correct) / len(test_loader.dataset)) * 100
     print(f'[test] - {hp.model} -> Accuracy: {accuracy} %')
 
 
