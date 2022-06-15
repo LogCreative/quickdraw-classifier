@@ -35,7 +35,7 @@ class Net(torch.nn.Module):
         out = out[-1]
 
         # decode the hidden state of the last time step
-        out = self.linear(out[-1])
+        out = self.linear(out)
         return out
 
 

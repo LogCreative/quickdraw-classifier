@@ -29,8 +29,8 @@ class HParams():
         self.grad_clip = 1.
         self.temperature = 0.4
         self.max_seq_length = 200
-        self.device = "cpu"
-        self.small_data = True
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.small_data = False
         self.val_batch_size = self.batch_size
         self.epochs = 10
         self.log_interval = 100
