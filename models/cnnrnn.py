@@ -99,7 +99,7 @@ class Net(torch.nn.Module):
     def forward(self, img, seq):
         cnn_x = self.cnn(img) # img
         rnn_x = self.rnn(seq) # seq
-        x = self.mlp(torch.concat([cnn_x,rnn_x], dim=1))
+        x = self.mlp(torch.cat([cnn_x,rnn_x], dim=1))
         return x
 
 if __name__=='__main__':
