@@ -15,6 +15,7 @@ class HParams():
         self.dataroot = 'dataset/seq'
         self.enc_hidden_size = 256
         self.dec_hidden_size = 512
+        self.cls_hidden_size = 128
         self.num_class = 25
         self.M = 20
         self.dropout = 0.9
@@ -47,7 +48,7 @@ def main(hp):
     val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)
     test_loader = DataLoader(testset, batch_size=hp.val_batch_size, num_workers=4)
     
-    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device})
+    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'cls_hidden_size': hp.cls_hidden_size, 'dropout': hp.dropout})
     device = torch.device(hp.device)
     
     crit = torch.nn.CrossEntropyLoss().to(device)

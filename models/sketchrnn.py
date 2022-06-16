@@ -10,17 +10,27 @@ class Net(torch.nn.Module):
         super().__init__()
 
         self.num_classes = 25
-        self.hidden_size = 10
+        self.hidden_size = 256
+        self.cls_hidden_size = 128
+        self.dropout = 0.8
         self.device = "cpu"
         if opt is not None:
             self.num_classes = opt['num_classes']
             self.hidden_size = opt['hidden_size']
+            self.cls_hidden_size = opt['cls_hidden_size']
+            self.dropout = opt['dropout']
             self.device = opt['device']
 
         self.lstm = torch.nn.LSTM(input_size=5, hidden_size=self.hidden_size,bias=True,
         # dropout=0.3, 
         bidirectional=True)
-        self.linear = torch.nn.Linear(self.hidden_size*2, self.num_classes)
+
+        # classifier network
+        self.fc1 = torch.nn.Linear(self.hidden_size*2, self.cls_hidden_size)
+        self.drop1 = torch.nn.Dropout(self.dropout)
+        self.fc2 = torch.nn.Linear(self.cls_hidden_size, self.cls_hidden_size)
+        self.drop2 = torch.nn.Dropout(self.dropout)
+        self.fc3 = torch.nn.Linear(self.cls_hidden_size, self.num_classes)
 
     def forward(self, x, hidden=None):
         if hidden is None:
@@ -31,11 +41,12 @@ class Net(torch.nn.Module):
             c0 = hidden[1]
 
         out, _ = self.lstm(x.float(), (h0, c0))
-
+        # decode the hidden state of the last time step
         out = out[-1]
 
-        # decode the hidden state of the last time step
-        out = self.linear(out)
+        out = self.drop1(self.fc1(out))
+        out = self.drop2(self.fc2(out))
+        out = self.fc3(out)
         return out
 
 
