@@ -88,6 +88,7 @@ def main(hp):
         print(f'Epoch {e + 1}/{hp.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
+        print("Testing...")
         correct = 0
         model.eval()
         with torch.no_grad():

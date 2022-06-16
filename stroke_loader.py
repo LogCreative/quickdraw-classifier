@@ -128,6 +128,7 @@ def GetDataset(dataroot:str,transform=None,small=False):
         npz_file = np.load(f'{dataroot}/{filename}',allow_pickle=True, encoding="latin1")
         train_data_array = np.concatenate((train_data_array, npz_file['train']), axis=0)
         val_data_array = np.concatenate((val_data_array, npz_file['valid']), axis=0)
+        test_data_array = np.concatenate((test_data_array, npz_file['test']), axis=0)
         train_label_array = np.concatenate((train_label_array, np.full((len(npz_file['train']),),categories_label_dict[category])), axis=0)
         val_label_array = np.concatenate((val_label_array, np.full((len(npz_file['valid']),),categories_label_dict[category])), axis=0)
         test_label_array = np.concatenate((test_label_array, np.full((len(npz_file['test']),),categories_label_dict[category])), axis=0)
@@ -136,7 +137,7 @@ def GetDataset(dataroot:str,transform=None,small=False):
     val_label_array = val_label_array
     test_label_array = test_label_array
     trainset,valset,testset = SeqDataset(train_data_array, train_label_array,transform), SeqDataset(val_data_array, val_label_array,transform), SeqDataset(test_data_array, test_label_array,transform)
-    return trainset,valset,test_data_array
+    return trainset,valset,testset
 
 
 
