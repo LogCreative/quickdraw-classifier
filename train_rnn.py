@@ -1,4 +1,3 @@
-from tabnanny import verbose
 import torch, os
 from torchvision.transforms import ToTensor, Compose, Resize, Grayscale
 from torch.utils import tensorboard as tb
@@ -15,6 +14,7 @@ class HParams():
         self.dataroot = 'dataset/seq'
         self.enc_hidden_size = 256
         self.dec_hidden_size = 512
+        self.Nz = 128
         self.cls_hidden_size = 128
         self.num_class = 25
         self.M = 20
@@ -34,7 +34,7 @@ class HParams():
         self.small_data = False
         self.val_batch_size = self.batch_size
         self.epochs = 10
-        self.log_interval = 100
+        self.log_interval = 1000
         self.model = "rnn"
 
 hp = HParams()
@@ -48,7 +48,7 @@ def main(hp):
     val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)
     test_loader = DataLoader(testset, batch_size=hp.val_batch_size, num_workers=4)
     
-    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'cls_hidden_size': hp.cls_hidden_size, 'dropout': hp.dropout})
+    model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'cls_hidden_size': hp.cls_hidden_size, 'dropout': hp.dropout, 'Nz': hp.Nz})
     device = torch.device(hp.device)
     
     crit = torch.nn.CrossEntropyLoss().to(device)
@@ -89,7 +89,6 @@ def main(hp):
         print(f'Epoch {e + 1}/{hp.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
-        print("Testing...")
         correct = 0
         model.eval()
         with torch.no_grad():
@@ -105,6 +104,7 @@ def main(hp):
             torch.save(model.state_dict(), f'best_{hp.model}.pth')
         print(f'[validation] -/{e+1}/{hp.epochs} -> Accuracy: {accuracy} %')
 
+    print("Testing...")
     correct = 0
     model.load_state_dict(torch.load(f'best_{hp.model}.pth')) # the best
     model.eval()
