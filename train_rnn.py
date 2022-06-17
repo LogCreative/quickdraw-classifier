@@ -25,7 +25,7 @@ class HParams():
         self.KL_min = 0.2
         self.wKL = 0.5
         self.lr = 0.001
-        self.weight_decay = 0.8
+        self.weight_decay = 0.001
         self.min_lr = 0.00001
         self.grad_clip = 1.
         self.temperature = 0.4
