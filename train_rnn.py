@@ -25,7 +25,7 @@ class HParams():
         self.KL_min = 0.2
         self.wKL = 0.5
         self.lr = 0.001
-        self.weight_decay = 0.9999
+        self.weight_decay = 0.8
         self.min_lr = 0.00001
         self.grad_clip = 1.
         self.temperature = 0.4
@@ -43,9 +43,10 @@ from models.sketchrnn import Net
     
 def main(hp):
     trainset,valset,testset = GetDataset(hp.dataroot,None,hp.small_data)
-    train_loader = DataLoader(trainset, batch_size=hp.batch_size, sampler=RandomSampler(trainset, replacement=True, num_samples=((len(trainset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
+    # train_loader = DataLoader(trainset, batch_size=hp.batch_size, sampler=RandomSampler(trainset, replacement=True, num_samples=((len(trainset) // hp.batch_size + 1) * hp.batch_size)), num_workers=4)
     # A RandomSampler with fixed batch size is used for fully using the whole dataset.
-    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, num_workers=4)
+    train_loader = DataLoader(trainset, batch_size=hp.batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(valset, batch_size=hp.val_batch_size, shuffle=True, num_workers=4)
     test_loader = DataLoader(testset, batch_size=hp.val_batch_size, num_workers=4)
     
     model = Net({'num_classes': 25, 'hidden_size': hp.enc_hidden_size, 'device': hp.device, 'cls_hidden_size': hp.cls_hidden_size, 'dropout': hp.dropout, 'Nz': hp.Nz})
