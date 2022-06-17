@@ -26,15 +26,18 @@ class Net(torch.nn.Module):
         self.lstm = torch.nn.LSTM(input_size=5, hidden_size=self.hidden_size,bias=True,
         # dropout=0.3, 
         bidirectional=True)
-        self.fc_mu = torch.nn.Linear(self.hidden_size * 2, self.Nz)
-        self.fc_sigma = torch.nn.Linear(self.hidden_size * 2, self.Nz)
 
-        # classifier network
-        self.fc1 = torch.nn.Linear(self.Nz, self.cls_hidden_size)
-        self.drop1 = torch.nn.Dropout(self.dropout)
-        self.fc2 = torch.nn.Linear(self.cls_hidden_size, self.cls_hidden_size)
-        self.drop2 = torch.nn.Dropout(self.dropout)
-        self.fc3 = torch.nn.Linear(self.cls_hidden_size, self.num_classes)
+        self.fc = torch.nn.Linear(self.hidden_size*2, self.num_classes)
+
+        # self.fc_mu = torch.nn.Linear(self.hidden_size * 2, self.Nz)
+        # self.fc_sigma = torch.nn.Linear(self.hidden_size * 2, self.Nz)
+
+        # # classifier network
+        # self.fc1 = torch.nn.Linear(self.Nz, self.cls_hidden_size)
+        # self.drop1 = torch.nn.Dropout(self.dropout)
+        # self.fc2 = torch.nn.Linear(self.cls_hidden_size, self.cls_hidden_size)
+        # self.drop2 = torch.nn.Dropout(self.dropout)
+        # self.fc3 = torch.nn.Linear(self.cls_hidden_size, self.num_classes)
 
     def forward(self, x, hidden=None):
         if hidden is None:
@@ -48,14 +51,17 @@ class Net(torch.nn.Module):
         # decode the hidden state of the last time step
         out = out[-1]
 
-        mu = self.fc_mu(out)
-        sigma = torch.exp(self.fc_sigma(out) / 2.0)
-        noise = torch.normal(torch.zeros(mu.shape), torch.ones(mu.shape)).to(self.device)
-        out = mu + sigma * noise
+        # mu = self.fc_mu(out)
+        # sigma = torch.exp(self.fc_sigma(out) / 2.0)
+        # noise = torch.normal(torch.zeros(mu.shape), torch.ones(mu.shape)).to(self.device)
+        # out = mu + sigma * noise
 
-        out = self.drop1(self.fc1(out))
-        out = self.drop2(self.fc2(out))
-        out = self.fc3(out)
+        # out = self.drop1(self.fc1(out))
+        # out = self.drop2(self.fc2(out))
+        # out = self.fc3(out)
+
+        out = self.fc(out)
+
         return out
 
 
