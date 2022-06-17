@@ -34,7 +34,7 @@ class Args:
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     model = 'cnnrnn'
     small_data = False
-    weight_decay = 1e-3
+    weight_decay = 1e-2
     lr = 1e-3
     def __init__(self) -> None:
         pass
