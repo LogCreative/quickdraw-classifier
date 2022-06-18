@@ -85,7 +85,9 @@ def main( args ):
             output = model(X)
             _, predicted = torch.max(output, 1)                
             correct += (predicted == Y).sum().item()
-    accuracy = (float(correct) / len(val_loader.dataset)) * 100
+    
+    accuracy = (float(correct) / len(test_loader.dataset)) * 100
+
     print(f'[test] - {args.model} -> Accuracy: {accuracy} %')
 
 if __name__ == '__main__':
