@@ -92,7 +92,6 @@ def main( args ):
         print(f'Epoch {e + 1}/{args.epochs} | trainning | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.4f}')
         scheduler.step(epoch_loss)
 
-        print("Testing...")
         correct = 0
         model.eval()
         with torch.no_grad():
@@ -108,6 +107,7 @@ def main( args ):
             torch.save(model.state_dict(), f'best_{args.model}.pth')
         print(f'[validation] -/{e+1}/{args.epochs} -> Accuracy: {accuracy} %')
 
+    print("Testing...")
     correct = 0
     model.load_state_dict(torch.load(f'best_{args.model}.pth')) # the best
     model.eval()

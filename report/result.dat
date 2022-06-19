@@ -1,0 +1,6 @@
+model acc
+Sketch-a-net    0.6948
+AlexNet 0.8462
+ResNet18    0.8557
+BiLSTM  0.8561
+CNN+RNN 0.8567
