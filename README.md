@@ -26,3 +26,7 @@ python train_cnnrnn.py
 For CNN model, you may need to modify the type of the structure in `config_train_cnn.py`. The value of `model` could be `resnet18`, `ResNet`, or `sketchnet`. For RNN model, we use Bidirectional LSTM structure. For CNN-RNN model, we use Sketch-a-Net for CNN branch and BiLSTM for RNN branch.
 
 The training process uses PyTorch. During training, the best model will be saved as `best_{model}.pth` in the root folder. The test accuracy could be viewed in [report/result.dat](report/result.dat).
+
+## Report
+
+Report (Chinese) could be found in [report/ML_CS420_Project_report.pdf](report/ML_CS420_Project_report.pdf).
