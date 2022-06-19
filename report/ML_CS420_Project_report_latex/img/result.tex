@@ -1,0 +1,7 @@
+\begin{tikzpicture}
+\begin{axis}[grid={major},
+symbolic x coords={Sketch-a-net,AlexNet,ResNet18,BiLSTM,CNN+RNN}, xtick=data,
+width=10cm,height=6cm,]
+ \addplot+ [ybar,no markers,fill=blue!20,] table[row sep=crcr,x=model,y=acc,] {model acc\\Sketch-a-net 0.6948\\AlexNet 0.8462\\ResNet18 0.8557\\BiLSTM 0.8561\\CNN+RNN 0.8567\\};
+\end{axis}
+\end{tikzpicture}

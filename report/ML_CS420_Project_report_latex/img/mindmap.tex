@@ -1,0 +1,14 @@
+      \begin{tikzpicture}[mindmap,concept color=gray!50!blue]
+      \node [concept] {\color{white}CNN+RNN}
+      child[concept color=blue!75,grow=150] {
+      	node[concept] {\color{white}CNN} 
+      		child[concept color=blue!40,grow=140] {node[concept] {Sketch-a-Net}}
+      		child[concept color=blue!40,grow=180] {node[concept] {AlexNet}}
+      		child[concept color=blue!40,grow=220] {node[concept] {ResNet}}
+      }
+      child[concept color=gray,grow=210] {
+      	node[concept] {\color{white}RNN}
+      		child[concept color=gray!60,grow=180] {node[concept] {BiLSTM}}
+      };
+      \end{tikzpicture}
+    

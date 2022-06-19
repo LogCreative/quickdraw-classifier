@@ -1,0 +1,11 @@
+
+      \begin{tikzpicture}[every node/.style={minimum height=0.6cm}]
+      \node[draw] (v1) at (0.5,-0.5) {seq};
+\node[draw] (v2) at (2.5,-0.5) {seq2svg};
+\node[draw] (v3) at (5,-0.5) {svg2png};
+\node[draw] (v4) at (7,-0.5) {png};
+\draw[->]  (v1) edge (v2);
+\draw[->]  (v2) edge (v3);
+\draw[->]  (v3) edge (v4);
+\end{tikzpicture}
+    

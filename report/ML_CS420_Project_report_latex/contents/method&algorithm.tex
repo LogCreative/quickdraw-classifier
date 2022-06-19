@@ -1,0 +1,111 @@
+\section{Methods and algorithms}\label{sec:methods}
+\subsection{数据集预处理}
+QuickDraw数据集\cite{sketchrnn}由数百个常见涂鸦对象类组成。每个QuickDraw对象类数据集包含70000个训练样本以及2500个验证样本。QuickDraw使用了一种数据格式，将草图表示为一组笔画动作，该格式中将 0/1 笔画事件扩展为多状态事件。在此数据格式中，图形的初始绝对坐标位于原点，并将草图表示为由点构成的列表，每个点表示为由5个元素组成的向量：$(\Delta x, \Delta y, p_1, p_2, p_3)$。
+其中前两个元素是笔划在 $x$ 和 $y$ 方向上相对于前一点的偏移距离，后三个元素表示当前画笔的三种可能状态。第一个笔状态 $p_1$ 表示笔当前正在接触纸张，并且将绘制一条线，将下一点与当前点连接起来。第二个笔状态 $p_2$ 表示笔将在当前点之后从纸上提起，下一步不会画线。第三个笔状态 $p_3$ 表示图形已结束，后续点（包括当前点）将不会渲染。
+
+由于我们使用的 QuickDraw 数据集中的原始草图是以矢量化序列呈现的，为使用基于图片的 CNN 网络架构我们需要首先将其进一步转化为草图图像。为此我们参考了 \parencite{pix2seq} 提供的通过矢量化序列创建草图图像的方法，将 QuickDraw 数据集的笔画格式首先转换为 SVG 图像，后转化为相应的图片形式，如图 \ref{fig:seq2png} 所示。
+
+\begin{figure}[ht]
+    \centering
+    \input{img/seq2png}
+    \caption{将笔画格式转换为图像}
+    \label{fig:seq2png}
+\end{figure}
+
+
+%%%%% 这段没用到
+% RPCL-pix2seq构造了一个分
+% 层结构的网络，将底层网络参数和顶层 GMM 参数
+% 的训练过程分离，顶层通过RPCL的EM算法估计 GMM 参数，底层通过网络
+% 优化器更新网络参数。此外，通过竞争惩罚竞争学习（RPCL）策略的增强，RPCL-pix2seq能够自动确定 GMM
+% 的高斯成分数量，从而使可控合成具有更好的鲁棒性。
+\subsection{CNN}
+
+\subsubsection{动机}
+首先我们尝试以图片作为数据集，因此选择了适用于图像处理的CNN网络结构。卷积神经网络（CNN）主要是用于图像识别领域，CNN的结构通常可以分为3层：
+卷积层(Convolutional Layer) --- 主要作用是提取特征；
+池化层(Max Pooling Layer) --- 主要作用是下采样(downsampling)，却不会损坏识别结果；
+全连接层(Fully Connected Layer) --- 主要作用是进行分类。
+在图像数据集上使用CNN网络通常可以取得较好的分类结果，为此我们分别使用了代表性的Sketch-a-Net、AlexNet、ResNet-18网络架构，选择QuickDraw图片数据集作为我们的训练集，并在测试集对不同网络架构的分类准确性进行了测试。
+
+\subsubsection{Sketch-a-Net}
+
+Sketch-a-Net\cite{sketchanet}是Qian Yu等人针对手绘草图识别问题提出的多通道的深度神经网络框架，Sketch-a-Net使得计算机对手绘草图的识别能力首次超过了人类。
+% Sketch-a-Net通过多通道的方式增加了对绘图过程中不同的绘制顺序的考虑，并通过贝叶斯融合的手段对多尺度的网络进行了融合，从而可以有效解决手绘草图不同程度的提取和稀疏问题。
+同时，Sketch-a-Net使用了15×15的卷积核，由于手绘草图缺少纹理信息，较大的卷积核可以更好的体现草图的结构信息。我们复现了其代码，并在其基础上将训练数据集修改为QuickDraw数据集。
+
+\begin{figure}[htp]
+    \centering
+    \input{img/sketchanet}
+    \caption{Sketch-a-Net结构}
+    \label{fig:sketch-a-net}
+\end{figure}
+\subsubsection{AlexNet}
+AlexNet\cite{alexnet}卷积神经网络模型由5个卷积层和3个池化Pooling层以及3个全连接层构成，如图 \ref{fig:Alexnet} 所示。其特点在于：使用ReLU作为CNN的激活函数，ReLU函数的效果在较深的网络中超过常规的Sigmoid函数，解决了Sigmoid在网络较深时的梯度弥散问题；在训练时使用Dropout随机忽略一部分神经元，以避免模型过拟合；并且在CNN中使用重叠的最大池化(步长小于卷积核)，此前CNN中普遍使用平均池化，使用最大池化可以避免平均池化的模糊效果，同时重叠效果可以提升特征的丰富性；并且AlexNet使用了LRN层（Local Response Normalization，即局部响应归一化），对局部神经元的活动创建竞争机制，使得其中响应比较大的值变得相对更大，并抑制其他反馈较小的神经元，增强了模型的泛化能力。在AlexNet的基础上我们将QuickDraw数据集中28×28的图片resize为225×225进而作为AlexNet的输入，最终通过训练得到了较好的分类结果。
+\begin{figure}[htp]
+    \centering
+    % \includegraphics[width=16cm]{img/pic3.png}
+    {
+    \input{img/alexnet}
+    }
+    
+    \caption{AlexNet结构}
+    \label{fig:Alexnet}
+\end{figure}
+\subsubsection{ResNet-18}
+ResNet\cite{resnet}网络参考了VGG19网络，沿用了VGG完整的3×3卷积层设计，并在其基础上通过短路机制加入了残差单元。残差单元里首先有2个有相同输出通道数的3×3卷积层，每个卷积层后接一个批量规范化层和ReLU激活函数，残差单元通过跨层数据通路，跳过这2个卷积运算，将输入直接加在最后的ReLU激活函数中。通过以上方式，ResNet很好的处理了深度卷积网络在图像分类中的退化问题。
+
+\begin{figure}[ht]
+    \centering
+    \input{img/resnet}
+    \caption{ResNet-18结构}
+    \label{fig:ResNet-18}
+\end{figure}
+
+\subsection{RNN}
+
+\subsubsection{动机}
+考虑到原QucikDraw数据集由笔画序列构成，我们尝试了对序列处理较为高效的RNN架构。循环神经网络（RNN），同经典的前馈神经网络相比较（如多层感知器、深度置信网络、卷积神经网络等），RNN允许网络隐藏层(hidden layer)的输出再以输入的形式作用于该隐藏层自己。
+
+由于RNN具有记忆性并且具有参数共享的特征，在对序列的非线性特征进行学习时具有一定优势，而RNN单元在面对长序列数据时，很容易便遭遇梯度弥散，使得RNN只具备短期记忆。
+
+而长短期记忆网络（Long-Short Term Memory, LSTM）通过引入遗忘门（forget gate）、输入门（input gate）、输出门（output gate）等结构控制信息的保留与丢弃，如图 \ref{fig:lstm} 所示。可以有效地解决 RNN 中的梯度爆炸和梯度消失问题，并有效地处理长距离的依赖。
+
+% 对QuickDraw序列数据集进行学习，并取得了较好的结果。LSTM 元胞结构如图 \ref{fig:lstm} 所示。
+% RNN 简介
+
+\begin{figure}[ht]
+    \centering
+    \input{img/lstm}
+    \caption{LSTM 元胞结构}
+    \label{fig:lstm}
+\end{figure}
+
+\subsubsection{双向 LSTM}
+
+SketchRNN \cite{sketchrnn} 采用了可变自编码器（Variational Auto Encoder, VAE）结构生成其他的笔画图像。本项目为分类问题，我们只采用编码器（Encoder）部分的双向 LSTM 结构 \cite{bilstm} 用于分类识别，隐藏层元胞数目为 $256\times 2$，没有对 latent  space 的 $N_z$ 进行生成，而是最后直接添加线性层全连接用于图像的 $25$ 分类。
+
+双向 LSTM 结构（如图 \ref{fig:bilstm}）相较于单向的 LSTM 增加了后向传播层，不仅可以考虑之前的状态，还会考虑未来的状态，这样可以更好地识别笔画信息。
+
+% 不仅可以会考虑之前的状态，还会考虑与未来状态的关系。
+
+\begin{figure}[ht]
+    \centering
+    \input{img/bilstm}
+    \caption{BiLSTM 结构（$i=\max{\#seq},j=25$）}
+    \label{fig:bilstm}
+\end{figure}
+
+\subsection{CNN+RNN}
+Peng Xu等人在SketchMate\cite{sketchmate}文章中提出了一种将CNN与RNN结合的网络结构，分别将图片信息输入CNN网络分支并通过CNN提取抽象的视觉概念，将笔画序列信息输入RNN网络分支建模素描的时间顺序，之后再通过后期融合层以及量化编码层将二者进行结合。
+
+我们又参考了 LiveSketch\cite{livesketch} 的网络结构，将 CNN 和 RNN 分支直接连接到全连接层，最后用于分类，如图 \ref{fig:cnnrnn}。其中 CNN 分支使用了 Sketch-a-Net 结构，而 RNN 分支使用了 BiLSTM 结构，全连接层将会同时接收两个分支各 512 个输出（共 1024 个输出）连接于 512 个神经元上，之后全连接于后层用来进行 25 个分类的判别。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics{img/cnnrnn.pdf}
+    \caption{CNN+RNN 结构（分支各 512 个输出，全连接层 512 个神经元，输出层为 25 分类器）}
+    \label{fig:cnnrnn}
+\end{figure}
+
+

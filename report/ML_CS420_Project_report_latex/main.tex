@@ -1,0 +1,22 @@
+\documentclass{airep}
+\title{
+    \large \color{maintheme!70!black} 机器学习项目报告\par\vspace{10pt}
+    \color{maintheme!70!black}\bfseries\Large 基于 CNN 与 RNN 结合的草图分类网络  % TBD
+}
+\author{\kaishu 李子龙~~唐　珂~~裴禹乔}
+\date{\today}
+\addbibresource{ref.bib}
+\begin{document}
+\maketitle
+\begin{abstract}
+本项目旨在解决 25 类草图图像分类问题。首先采用 CNN 网络（Sketch-a-Net, AlexNet, ResNet）对光栅化后的图像利用其局部信息进行识别，之后采用 RNN 的双向 LSTM 结构对笔画利用其顺序信息进行分类，最终使用 CNN 网络（Sketch-a-Net）与 RNN 网络（BiLSTM）相结合的方法得到了较好的分类结果。
+\end{abstract}
+\input{contents/intro}
+\input{contents/idea}
+\input{contents/method&algorithm}
+\input{contents/settings}
+\input{contents/result}
+\input{contents/conclusion}
+\input{contents/contribution}
+\printbibliography
+\end{document}

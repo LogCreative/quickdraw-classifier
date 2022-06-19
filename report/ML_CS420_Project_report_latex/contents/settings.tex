@@ -1,0 +1,43 @@
+\section{Experimental settings}
+
+\subsection{训练参数}
+
+网络超参数为第 \ref{sec:methods} 节所言的默认参数。训练时参数如表 \ref{tab:param} 所示。
+
+\begin{table}[ht]
+    \centering
+    \caption{训练参数}
+    \label{tab:param}
+    \begin{tabular}{cccccc}
+        \toprule
+        参数 & Sketch-a-Net &  AlexNet & ResNet & BiLSTM & CNN+RNN \\
+        \midrule
+        lr &  \multicolumn{5}{c}{0.001} \\
+        batch size & \multicolumn{5}{c}{64}  \\
+        weight decay & 0.001 &  0.001&  0.001& 0.0006  &0.0006 \\
+        % \midrule
+        % RNN 隐藏层元胞数 & - & - & - & $256\times 2$ & $256\times 2$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{优化训练方法}
+
+\subsubsection{权重衰减}
+    权重衰减（weight decay），也可称为L2正则化，其目的是让权重衰减到更小的值，在一定程度上缓解模型过拟合的问题。其之所以有效，是因为L2范数对于权重向量的大分量施加了巨大的惩罚，使学习算法会偏向在大量特征上均匀分布权重的模型，对单个变量上的观测误差更加稳定，而非将权重集中在小部分特征上。
+    
+    本小组通过设置Adam优化器中 \verb"weight_decay"，以抑制模型深度可能过深带来的过拟合现象，增强模型的泛化能力。
+\subsubsection{可变的学习率}
+    调整学习率也是优化模型十分重要的一环。如果学习率过大，会造成结果难以收敛；而如果学习率太小，既可能导致结果收敛过慢，训练时间过长，也可能导致结果只处于一个局部最优而非更好的结果。因此，在训练的过程当中，我们需要动态衰减学习率。
+    
+    我们使用了 PyTorch 包中自带的scheduler类来进行学习率衰减，如下面代码所示:
+    \begin{lstlisting}
+     scheduler = ReduceLROnPlateau(optimizer, 'min', factor=0.3, patience=2)
+     train_model(model, dataloaders_dict, criterion, optimizer, scheduler, num_epochs=5)
+    \end{lstlisting}
+    解释:
+    \begin{itemize}
+        \item \textbf{patience}:这个参数是容忍程度的意思，意味着在训练数量为patience的轮数之后，如果validation集上的loss一直则没有下降，则要求开始降低学习率。本小组的代码中将这设置成2。
+        \item \textbf{factor}：这个参数是学习率衰减时的乘以的因子，本小组将此设置成0.3，意味着每一次衰减为原来的0.3倍。
+    \end{itemize}
+
