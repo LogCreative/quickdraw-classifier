@@ -44,10 +44,10 @@ Sketch-a-Net\cite{sketchanet}是Qian Yu等人针对手绘草图识别问题提�
 AlexNet\cite{alexnet}卷积神经网络模型由5个卷积层和3个池化Pooling层以及3个全连接层构成，如图 \ref{fig:Alexnet} 所示。其特点在于：使用ReLU作为CNN的激活函数，ReLU函数的效果在较深的网络中超过常规的Sigmoid函数，解决了Sigmoid在网络较深时的梯度弥散问题；在训练时使用Dropout随机忽略一部分神经元，以避免模型过拟合；并且在CNN中使用重叠的最大池化(步长小于卷积核)，此前CNN中普遍使用平均池化，使用最大池化可以避免平均池化的模糊效果，同时重叠效果可以提升特征的丰富性；并且AlexNet使用了LRN层（Local Response Normalization，即局部响应归一化），对局部神经元的活动创建竞争机制，使得其中响应比较大的值变得相对更大，并抑制其他反馈较小的神经元，增强了模型的泛化能力。在AlexNet的基础上我们将QuickDraw数据集中28×28的图片resize为225×225进而作为AlexNet的输入，最终通过训练得到了较好的分类结果。
 \begin{figure}[htp]
     \centering
-    % \includegraphics[width=16cm]{img/pic3.png}
-    {
-    \input{img/alexnet}
-    }
+    \includegraphics[width=15cm]{img/alexnet.pdf}
+    % {
+    % \input{img/alexnet}
+    % }
     
     \caption{AlexNet结构}
     \label{fig:Alexnet}
